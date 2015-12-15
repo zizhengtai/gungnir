@@ -5,6 +5,6 @@ add_executable(test_all
     test_all.cpp
     test_dispatch.cpp
     test_dispatch_serial.cpp
-    test_dispatch_async.cpp
+    test_dispatch_sync.cpp
 )
 add_custom_target(check COMMAND make && ./test_all)
