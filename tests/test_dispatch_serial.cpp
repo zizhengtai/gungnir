@@ -23,7 +23,7 @@ SCENARIO("serial dispatch maintains order of tasks", "[serial]") {
 
         WHEN("serial-dispatched") {
 
-            gungnir::TaskPool{8}.dispatchSerial(
+            gungnir::TaskPool{}.dispatchSerial(
                     std::cbegin(tasks), std::cend(tasks));
 
             THEN("they are executed in the identical order") {

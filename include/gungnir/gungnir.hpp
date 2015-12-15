@@ -21,7 +21,8 @@ using Task = std::function<void()>;
 
 class TaskPool final {
 public:
-    explicit TaskPool(std::size_t numThreads)
+    explicit TaskPool(
+            std::size_t numThreads = std::thread::hardware_concurrency())
         : numThreads_{numThreads}
     {
         threads_.reserve(numThreads_);
