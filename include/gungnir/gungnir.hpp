@@ -53,17 +53,18 @@ public:
         }
 
         // pump until empty
-        std::atomic_size_t numDone{0};
+        std::atomic_size_t numDoneThreads{0};
         for (auto &t: threads_) {
-            t = std::thread([this, &numDone] {
+            t = std::thread([this, &numDoneThreads] {
                 Task t;
 
                 do {
                     while (tasks_.try_dequeue(t)) {
                         t();
                     }
-                } while (numThreads_ ==
-                        numDone.fetch_add(1, std::memory_order_acq_rel) + 1);
+                } while (numDoneThreads.fetch_add(
+                            1, std::memory_order_acq_rel) + 1 ==
+                        numThreads_);
             });
         }
         for (auto &t: threads_) {
