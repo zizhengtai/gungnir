@@ -26,6 +26,8 @@ SCENARIO("serial dispatch maintains order of tasks", "[serial]") {
 
             THEN("they are executed in the identical order") {
 
+                REQUIRE(v.size() == 1000);
+
                 bool matched = true;
                 for (int i = 0; i < 1000; ++i) {
                     if (v[i] != i) {
