@@ -187,7 +187,8 @@ private:
         if (destroyed_) {
             throw std::runtime_error("task pool already destroyed");
         }
-        if (!std::all_of(first, last, [](const Task &t) { return t; })) {
+        if (!std::all_of(first, last,
+                    [](const decltype(*first) &t) { return t; })) {
             throw std::invalid_argument("task has no target callable object");
         }
     }
