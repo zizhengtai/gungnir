@@ -109,11 +109,12 @@ public:
         }
         checkArgs(first, last);
 
-        dispatch(std::bind([](std::vector<Task> tasks) {
+        std::vector<Task> tasks{first, last};
+        dispatch([tasks] {
             for (const auto &t: tasks) {
                 t();
             }
-        }, std::move(std::vector<Task>{first, last})));
+        });
     }
 
     template <typename Iter>
