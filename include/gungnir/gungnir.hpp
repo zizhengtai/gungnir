@@ -45,19 +45,16 @@ public:
     {
         destroyed_ = true; // prevent any future task dispatches
 
+        std::atomic_size_t numDone{0};
+
         for (std::size_t i = 0; i < numThreads_; ++i) {
             tasks_.enqueue(Task{});
         }
         for (auto &t: threads_) {
             t.join();
-        }
 
-        // pump until empty
-        std::vector<std::thread> pumps;
-        pumps.reserve(numThreads_);
-        std::atomic_size_t numDone{0};
-        for (std::size_t i = 0; i < numThreads_; ++i) {
-            pumps.emplace_back(std::thread([this, &numDone] {
+            // pump until empty
+            t = std::thread([this, &numDone] {
                 Task t;
 
                 do {
@@ -66,9 +63,9 @@ public:
                     }
                 } while (numThreads_ ==
                         numDone.fetch_add(1, std::memory_order_acq_rel) + 1);
-            }));
+            });
         }
-        for (auto &t: pumps) {
+        for (auto &t: threads_) {
             t.join();
         }
     }
