@@ -1,8 +1,9 @@
 language: cpp
 compiler:
-    - gcc
     - clang
+before_script:
+    - brew update
+    - brew install llvm --with-clang
 script: cd tests && cmake . && make check
 os:
-    - linux
     - osx
