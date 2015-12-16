@@ -29,7 +29,7 @@ public:
         threads_.reserve(numThreads_);
 
         for (std::size_t i = 0; i < numThreads_; ++i) {
-            threads_.emplace_back(std::thread([this] {
+            threads_.emplace_back([this] {
                 Task t;
 
                 tasks_.wait_dequeue(t);
@@ -37,7 +37,7 @@ public:
                     t();
                     tasks_.wait_dequeue(t);
                 }
-            }));
+            });
         }
     }
 
@@ -71,6 +71,11 @@ public:
             t.join();
         }
     }
+
+    TaskPool(const TaskPool &other) = delete;
+    TaskPool(TaskPool &&other) = delete;
+    Task & operator=(const TaskPool &other) = delete;
+    Task & operator=(TaskPool &&other) = delete;
 
     void dispatch(const Task &task)
     {
@@ -189,6 +194,11 @@ public:
             results.emplace_back(f.get());
         }
         return results;
+    }
+
+    void dispatchOnce(std::once_flag &flag, const Task &task)
+    {
+        std::call_once(flag, task);
     }
 
 private:

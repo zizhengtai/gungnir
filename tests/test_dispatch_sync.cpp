@@ -7,7 +7,7 @@
 
 #include "catch.hpp"
 
-SCENARIO("synchronous dispatch waits for all tasks to finish", "[sync]") {
+SCENARIO("dispatchSync waits for all tasks to finish", "[sync]") {
 
     gungnir::TaskPool tp{8};
 
@@ -20,12 +20,12 @@ SCENARIO("synchronous dispatch waits for all tasks to finish", "[sync]") {
             tasks.emplace_back([i, &count] { count += i; });
         }
 
-        WHEN("sync-dispatched") {
+        WHEN("passed to dispatchSync") {
 
             tp.dispatchSync(tasks.cbegin(), tasks.cend());
             int finalCount = count;
 
-            THEN("all tasks finish before dispatch call returns") {
+            THEN("all tasks finish before dispatchSync returns") {
 
                 REQUIRE(finalCount == (0 + 999) * 1000 / 2);
             }
@@ -41,12 +41,12 @@ SCENARIO("synchronous dispatch waits for all tasks to finish", "[sync]") {
             tasks.emplace_back([i, &count] { count += i; return i; });
         }
 
-        WHEN("sync-dispatched") {
+        WHEN("passed to dispatchSync") {
 
             auto v = tp.dispatchSync<int>(tasks.cbegin(), tasks.cend());
             int finalCount = count;
             
-            THEN("all tasks finish before dispatch call returns") {
+            THEN("all tasks finish before dispatchSync call returns") {
 
                 REQUIRE(finalCount == (0 + 999) * 1000 / 2);
                 REQUIRE(std::accumulate(v.cbegin(), v.cend(), 0)

@@ -5,7 +5,7 @@
 
 #include "catch.hpp"
 
-SCENARIO("serial dispatch maintains order of tasks", "[serial]") {
+SCENARIO("dispatchSerial maintains order of tasks", "[serial]") {
 
     GIVEN("an ordered sequence of tasks") {
 
@@ -20,7 +20,7 @@ SCENARIO("serial dispatch maintains order of tasks", "[serial]") {
             });
         }
 
-        WHEN("serial-dispatched") {
+        WHEN("passed to dispatchSerial") {
 
             gungnir::TaskPool{8}.dispatchSerial(tasks.cbegin(), tasks.cend());
 

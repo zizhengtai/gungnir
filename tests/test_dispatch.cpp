@@ -7,7 +7,7 @@
 
 #include "catch.hpp"
 
-SCENARIO("asynchronous dispatch finishes before task pool is destroyed",
+SCENARIO("dispatch finishes before task pool is destroyed",
         "[async]") {
 
     GIVEN("some tasks") {
@@ -25,7 +25,7 @@ SCENARIO("asynchronous dispatch finishes before task pool is destroyed",
             tasks2.emplace_back([i, &x] { x += i; return i; });
         }
 
-        WHEN("async-dispatched") {
+        WHEN("passed to dispatch") {
 
             {
                 gungnir::TaskPool tp{8};
