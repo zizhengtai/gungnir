@@ -230,7 +230,7 @@ private:
     std::atomic_bool destroyed_{false};
     const std::size_t numThreads_;
     std::vector<std::thread> threads_;
-    moodycamel::BlockingConcurrentQueue<std::function<void()>> tasks_;
+    moodycamel::BlockingConcurrentQueue<Task> tasks_;
 };
 
 }
