@@ -1,0 +1,50 @@
+#include <atomic>
+#include <functional>
+#include <iterator>
+#include <numeric>
+#include <vector>
+
+#include "gungnir/gungnir.hpp"
+
+#include "catch.hpp"
+
+SCENARIO("asynchronous dispatch finishes before task pool is destroyed",
+        "[async]") {
+
+    GIVEN("some tasks") {
+
+        std::atomic_int x{0};
+
+        auto task1 = [&x](int i) { x += i; };
+        auto task2 = [&x](int i) { x += i; return i; };
+        std::vector<gungnir::Task> tasks1;
+        for (int i = 2000; i < 3000; ++i) {
+            tasks1.emplace_back([i, &x] { x += i; });
+        }
+        std::vector<std::function<int()>> tasks2;
+        for (int i = 3000; i < 4000; ++i) {
+            tasks2.emplace_back([i, &x] { x += i; return i; });
+        }
+
+        WHEN("async-dispatched") {
+
+            {
+                gungnir::TaskPool tp;
+                for (int i = 0; i < 1000; ++i) {
+                    tp.dispatch(std::bind(task1, i));
+                }
+                for (int i = 1000; i < 2000; ++i) {
+                    tp.dispatch<int>(std::bind(task2, i));
+                }
+                tp.dispatch(std::cbegin(tasks1), std::cend(tasks1));
+                tp.dispatch<int>(std::cbegin(tasks2), std::cend(tasks2));
+            }
+            int result = x;
+
+            THEN("task finishes before task pool is destroyed") {
+
+                REQUIRE(result == (0 + 3999) * 4000 / 2);
+            }
+        }
+    }
+}

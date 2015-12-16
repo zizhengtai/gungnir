@@ -8,10 +8,10 @@
 
 SCENARIO("serial dispatch maintains order of tasks", "[serial]") {
 
-    std::vector<int> v;
-    std::mutex m;
-
     GIVEN("an ordered sequence of tasks") {
+
+        std::vector<int> v;
+        std::mutex m;
 
         std::vector<gungnir::Task> tasks;
         for (int i = 0; i < 1000; ++i) {
