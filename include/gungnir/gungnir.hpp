@@ -184,11 +184,12 @@ private:
     template <typename Iter>
     void checkArgs(Iter first, Iter last) const
     {
+        using T = typename std::iterator_traits<Iter>::value_type;
+
         if (destroyed_) {
             throw std::runtime_error("task pool already destroyed");
         }
-        if (!std::all_of(first, last,
-                    [](const decltype(*first) &t) { return t; })) {
+        if (!std::all_of(first, last, [](const T &t) { return t; })) {
             throw std::invalid_argument("task has no target callable object");
         }
     }
