@@ -45,15 +45,16 @@ public:
     {
         destroyed_ = true; // prevent any future task dispatches
 
-        std::atomic_size_t numDone{0};
-
         for (std::size_t i = 0; i < numThreads_; ++i) {
             tasks_.enqueue(Task{});
         }
         for (auto &t: threads_) {
             t.join();
+        }
 
-            // pump until empty
+        // pump until empty
+        std::atomic_size_t numDone{0};
+        for (auto &t: threads_) {
             t = std::thread([this, &numDone] {
                 Task t;
 
