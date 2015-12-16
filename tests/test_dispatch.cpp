@@ -47,3 +47,4 @@ SCENARIO("dispatch finishes before task pool is destroyed",
         }
     }
 }
+

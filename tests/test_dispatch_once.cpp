@@ -36,3 +36,4 @@ SCENARIO("dispatchOnce executes task exactly once, "
         }
     }
 }
+

@@ -236,3 +236,4 @@ private:
 }
 
 #endif // GUNGNIR_HPP
+
