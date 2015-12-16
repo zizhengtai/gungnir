@@ -12,6 +12,8 @@
 #include <thread>
 #include <vector>
 
+#include <iostream>
+
 #include "gungnir/external/blockingconcurrentqueue.h"
 
 namespace gungnir {
@@ -47,6 +49,26 @@ public:
             tasks_.enqueue(Task{});
         }
         for (auto &t: threads_) {
+            t.join();
+        }
+
+        // pump until empty
+        std::vector<std::thread> pumps;
+        pumps.reserve(numThreads_);
+        std::atomic_size_t numDone{0};
+        for (std::size_t i = 0; i < numThreads_; ++i) {
+            pumps.emplace_back(std::thread([this, &numDone] {
+                Task t;
+
+                do {
+                    while (tasks_.try_dequeue(t)) {
+                        t();
+                    }
+                } while (numThreads_ ==
+                        numDone.fetch_add(1, std::memory_order_acq_rel) + 1);
+            }));
+        }
+        for (auto &t: pumps) {
             t.join();
         }
     }
@@ -109,9 +131,9 @@ public:
         }
         checkArgs(first, last);
 
-        std::vector<Task> tasks{first, last};
+        auto tasks = std::make_shared<std::vector<Task>>(first, last);
         dispatch([tasks] {
-            for (const auto &t: tasks) {
+            for (const auto &t: *tasks) {
                 t();
             }
         });
