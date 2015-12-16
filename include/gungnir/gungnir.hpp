@@ -109,11 +109,11 @@ public:
         }
         checkArgs(first, last);
 
-        dispatch([first, last] {
-            for (auto it = first; it != last; ++it) {
-                (*it)();
+        dispatch(std::bind([](std::vector<Task> tasks) {
+            for (const auto &t: tasks) {
+                t();
             }
-        });
+        }, std::move(std::vector<Task>{first, last})));
     }
 
     template <typename Iter>
@@ -129,14 +129,14 @@ public:
         std::condition_variable cv;
 
         for (auto it = first; it != last; ++it) {
-            dispatch([&, it] {
-                (*it)();
+            dispatch(std::bind([&](Task t) {
+                t();
 
                 std::unique_lock<std::mutex> lk(m);
                 if (--count == 0) {
                     cv.notify_all();
                 }
-            });
+            }, *it));
         }
 
         std::unique_lock<std::mutex> lk(m);
@@ -155,9 +155,9 @@ public:
         futures.reserve(last - first);
 
         for (auto it = first; it != last; ++it) {
-            futures.emplace_back(dispatch<R>([&, it] {
-                return (*it)();
-            }));
+            futures.emplace_back(dispatch<R>(std::bind([&](decltype(*it) t) {
+                return t();
+            }, *it)));
         }
 
         std::vector<R> results;
@@ -187,7 +187,7 @@ private:
         if (destroyed_) {
             throw std::runtime_error("task pool already destroyed");
         }
-        if (!std::all_of(first, last, [](const auto &t) { return t; })) {
+        if (!std::all_of(first, last, [](const Task &t) { return t; })) {
             throw std::invalid_argument("task has no target callable object");
         }
     }

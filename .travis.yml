@@ -1,8 +1,17 @@
 language: cpp
 compiler:
-    - clang
+    - gcc
+addons:
+    apt:
+        sources:
+            - ubuntu-toolchain-r-test
+        packages:
+            - g++-4.8
 before_script:
-    if [ $TRAVIS_OS_NAME == linux ]; then sudo apt-get update && sudo apt-get install -y clang; fi
+    - if [ $CXX = g++ ]; then export CXX=g++-4.8; fi
 script: cd tests && cmake . && make check
+branches:
+    only: master
 os:
     - linux
+    - osx

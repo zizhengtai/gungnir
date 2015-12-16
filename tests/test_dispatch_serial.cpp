@@ -1,4 +1,3 @@
-#include <iterator>
 #include <mutex>
 #include <vector>
 
@@ -23,8 +22,7 @@ SCENARIO("serial dispatch maintains order of tasks", "[serial]") {
 
         WHEN("serial-dispatched") {
 
-            gungnir::TaskPool{}.dispatchSerial(
-                    std::cbegin(tasks), std::cend(tasks));
+            gungnir::TaskPool{8}.dispatchSerial(tasks.cbegin(), tasks.cend());
 
             THEN("they are executed in the identical order") {
 

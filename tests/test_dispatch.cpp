@@ -1,6 +1,5 @@
 #include <atomic>
 #include <functional>
-#include <iterator>
 #include <numeric>
 #include <vector>
 
@@ -29,15 +28,15 @@ SCENARIO("asynchronous dispatch finishes before task pool is destroyed",
         WHEN("async-dispatched") {
 
             {
-                gungnir::TaskPool tp;
+                gungnir::TaskPool tp{8};
                 for (int i = 0; i < 1000; ++i) {
                     tp.dispatch(std::bind(task1, i));
                 }
                 for (int i = 1000; i < 2000; ++i) {
                     tp.dispatch<int>(std::bind(task2, i));
                 }
-                tp.dispatch(std::cbegin(tasks1), std::cend(tasks1));
-                tp.dispatch<int>(std::cbegin(tasks2), std::cend(tasks2));
+                tp.dispatch(tasks1.cbegin(), tasks1.cend());
+                tp.dispatch<int>(tasks2.cbegin(), tasks2.cend());
             }
             int result = x;
 
