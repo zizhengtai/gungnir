@@ -8,9 +8,13 @@ addons:
             - ubuntu-toolchain-r-test
         packages:
             - g++-4.8
+            - valgrind
 before_script:
     - if [ $CXX = g++ ]; then export CXX=g++-4.8; fi
-script: cd tests && cmake . && make check
+script:
+    - cd tests && cmake . && make
+    - if [ $TRAVIS_OS_NAME = linux ]; then valgrind --tool=memcheck --leak-check=full --error-exitcode=1 ./test_all; fi
+    - if [ $TRAVIS_OS_NAME = osx]; then ./test_all; fi
 branches:
     only: master
 os:

@@ -14,5 +14,3 @@ add_executable(test_all
 find_package(Threads REQUIRED)
 target_link_libraries(test_all ${CMAKE_THREAD_LIBS_INIT})
 
-add_custom_target(check COMMAND make && ./test_all)
-
