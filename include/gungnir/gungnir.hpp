@@ -28,8 +28,6 @@
 #include <thread>
 #include <vector>
 
-#include <iostream>
-
 #include "gungnir/external/blockingconcurrentqueue.h"
 
 namespace gungnir {
@@ -70,7 +68,7 @@ public:
         }
 
         // pump until empty
-        std::atomic_size_t numDoneThreads{0};
+        std::atomic<std::size_t> numDoneThreads{0};
         for (auto &t: threads_) {
             t = std::thread([this, &numDoneThreads] {
                 moodycamel::ConsumerToken ctok{tasks_};
@@ -169,7 +167,7 @@ public:
         }
         checkArgs(first, last);
 
-        std::atomic_size_t count{static_cast<std::size_t>(last - first)};
+        std::atomic<std::size_t> count{static_cast<std::size_t>(last - first)};
         std::mutex m;
         std::condition_variable cv;
 
@@ -245,7 +243,7 @@ private:
     }
 
 private:
-    std::atomic_bool destroyed_{false};
+    std::atomic<bool> destroyed_{false};
     const std::size_t numThreads_;
     std::vector<std::thread> threads_;
     moodycamel::BlockingConcurrentQueue<Task> tasks_;

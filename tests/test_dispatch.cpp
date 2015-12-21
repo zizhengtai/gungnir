@@ -12,7 +12,7 @@ SCENARIO("dispatch finishes before task pool is destroyed",
 
     GIVEN("some tasks") {
 
-        std::atomic_int x{0};
+        std::atomic<int> x{0};
 
         auto task1 = [&x](int i) { x += i; };
         auto task2 = [&x](int i) { x += i; return i; };

@@ -12,7 +12,7 @@ SCENARIO("dispatchOnce executes task exactly once, "
 
     GIVEN("a task") {
 
-        std::atomic_int x{0};
+        std::atomic<int> x{0};
         auto task = [&x] { x += 42; };
 
         WHEN("passed to dispatchOnce from multiple threads") {

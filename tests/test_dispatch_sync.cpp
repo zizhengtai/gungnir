@@ -13,7 +13,7 @@ SCENARIO("dispatchSync waits for all tasks to finish", "[sync]") {
 
     GIVEN("a collection of tasks") {
 
-        std::atomic_int count{0};
+        std::atomic<int> count{0};
 
         std::vector<gungnir::Task> tasks;
         for (int i = 0; i < 1000; ++i) {
@@ -34,7 +34,7 @@ SCENARIO("dispatchSync waits for all tasks to finish", "[sync]") {
 
     GIVEN("a collection of tasks that return values") {
 
-        std::atomic_int count{0};
+        std::atomic<int> count{0};
 
         std::vector<std::function<int()>> tasks;
         for (int i = 0; i < 1000; ++i) {
