@@ -1,5 +1,4 @@
-/*
- * Copyright 2015 Zizheng Tai
+/* Copyright 2015 Zizheng Tai
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,9 +67,9 @@ public:
         }
 
         // pump until empty
-        std::atomic<std::size_t> numDoneThreads{0};
+        std::atomic<std::size_t> numDones{0};
         for (auto &t: threads_) {
-            t = std::thread([this, &numDoneThreads] {
+            t = std::thread([this, &numDones] {
                 moodycamel::ConsumerToken ctok{tasks_};
                 Task t;
 
@@ -78,9 +77,8 @@ public:
                     while (tasks_.try_dequeue(ctok, t)) {
                         t();
                     }
-                } while (numDoneThreads.fetch_add(
-                            1, std::memory_order_acq_rel) + 1 ==
-                        numThreads_);
+                } while (numThreads_ ==
+                        numDones.fetch_add(1, std::memory_order_acq_rel) + 1);
             });
         }
         for (auto &t: threads_) {

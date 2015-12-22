@@ -29,9 +29,20 @@ SCENARIO("dispatch finishes before task pool is destroyed",
 
             {
                 gungnir::TaskPool tp{8};
-                for (int i = 0; i < 1000; ++i) {
-                    tp.dispatch(std::bind(task1, i));
+
+                // dispatched from multiple threads
+                std::vector<std::thread> threads;
+                for (int i = 0; i < 100; ++i) {
+                    threads.emplace_back([i, &tp, &task1] {
+                        for (int j = i * 10; j < (i + 1) * 10; ++j) {
+                            tp.dispatch(std::bind(task1, j));
+                        }
+                    });
                 }
+                for (auto &t: threads) {
+                    t.join();
+                }
+                
                 for (int i = 1000; i < 2000; ++i) {
                     tp.dispatch<int>(std::bind(task2, i));
                 }
