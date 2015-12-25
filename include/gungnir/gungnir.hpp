@@ -245,7 +245,7 @@ private:
     std::atomic<bool> destroyed_{false};
     const std::size_t numThreads_;
     std::vector<std::thread> threads_;
-    moodycamel::BlockingConcurrentQueue<Task> tasks_;
+    moodycamel::BlockingConcurrentQueue<Task<void>> tasks_;
 };
 
 }
