@@ -16,7 +16,7 @@ Features:
 
 ## Installation
 
-Gungnir is a header-only library, so no linking is required. Just drop it in your project.
+Gungnir is a header-only library, so no linking is required. Run `make install` to install Gungnir to the system include path, or just drop it in your project.
 
 ## Usage
 
