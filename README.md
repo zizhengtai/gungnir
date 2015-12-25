@@ -42,7 +42,7 @@ vector<future<R>> dispatchSerial(Iter first, Iter last);
 void              dispatchOnce(once_flag &flag, const Task<void> &task);
 ```
 
-Some utility functions in the `gungnir` namespace make `std::future` and `std::shared_future` easier to work with:
+Some utility functions in the `gungnir` namespace make it easier to work with `std::future` and `std::shared_future`:
 
 ```cpp
 // using std::shared_future;
