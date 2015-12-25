@@ -15,7 +15,7 @@ SCENARIO("dispatchSync waits for all tasks to finish", "[sync]") {
 
         std::atomic<int> count{0};
 
-        std::vector<gungnir::Task> tasks;
+        std::vector<gungnir::Task<void>> tasks;
         for (int i = 0; i < 1000; ++i) {
             tasks.emplace_back([i, &count] { count += i; });
         }
@@ -36,7 +36,7 @@ SCENARIO("dispatchSync waits for all tasks to finish", "[sync]") {
 
         std::atomic<int> count{0};
 
-        std::vector<std::function<int()>> tasks;
+        std::vector<gungnir::Task<int>> tasks;
         for (int i = 0; i < 1000; ++i) {
             tasks.emplace_back([i, &count] { count += i; return i; });
         }

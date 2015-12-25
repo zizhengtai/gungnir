@@ -12,7 +12,7 @@ SCENARIO("dispatchSerial maintains order of tasks", "[serial]") {
         std::vector<int> v;
         std::mutex m;
 
-        std::vector<gungnir::Task> tasks;
+        std::vector<gungnir::Task<void>> tasks;
         for (int i = 0; i < 1000; ++i) {
             tasks.emplace_back([i, &v, &m] {
                 std::unique_lock<std::mutex> lk(m);

@@ -16,11 +16,11 @@ SCENARIO("dispatch finishes before task pool is destroyed",
 
         auto task1 = [&x](int i) { x += i; };
         auto task2 = [&x](int i) { x += i; return i; };
-        std::vector<gungnir::Task> tasks1;
+        std::vector<gungnir::Task<void>> tasks1;
         for (int i = 2000; i < 3000; ++i) {
             tasks1.emplace_back([i, &x] { x += i; });
         }
-        std::vector<std::function<int()>> tasks2;
+        std::vector<gungnir::Task<int>> tasks2;
         for (int i = 3000; i < 4000; ++i) {
             tasks2.emplace_back([i, &x] { x += i; return i; });
         }
