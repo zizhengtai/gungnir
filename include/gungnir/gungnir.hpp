@@ -31,7 +31,8 @@
 
 namespace gungnir {
 
-using Task = std::function<void()>;
+template <typename R>
+using Task = std::function<R()>;
 
 class TaskPool final {
 public:
@@ -44,7 +45,7 @@ public:
         for (std::size_t i = 0; i < numThreads_; ++i) {
             threads_.emplace_back([this] {
                 moodycamel::ConsumerToken ctok{tasks_};
-                Task t;
+                Task<void> t;
 
                 tasks_.wait_dequeue(ctok, t);
                 while (t) {
@@ -60,7 +61,7 @@ public:
         destroyed_ = true; // prevent any future task dispatches
 
         for (std::size_t i = 0; i < numThreads_; ++i) {
-            tasks_.enqueue(Task{});
+            tasks_.enqueue(Task<void>{});
         }
         for (auto &t: threads_) {
             t.join();
@@ -71,7 +72,7 @@ public:
         for (auto &t: threads_) {
             t = std::thread([this, &numDones] {
                 moodycamel::ConsumerToken ctok{tasks_};
-                Task t;
+                Task<void> t;
 
                 do {
                     while (tasks_.try_dequeue(ctok, t)) {
@@ -88,10 +89,10 @@ public:
 
     TaskPool(const TaskPool &other) = delete;
     TaskPool(TaskPool &&other) = delete;
-    Task & operator=(const TaskPool &other) = delete;
-    Task & operator=(TaskPool &&other) = delete;
+    TaskPool & operator=(const TaskPool &other) = delete;
+    TaskPool & operator=(TaskPool &&other) = delete;
 
-    void dispatch(const Task &task)
+    void dispatch(const Task<void> &task)
     {
         checkArgs(task);
 
@@ -99,7 +100,7 @@ public:
     }
 
     template <typename R>
-    std::future<R> dispatch(const std::function<R()> &task)
+    std::future<R> dispatch(const Task<R> &task)
     {
         checkArgs(task);
 
@@ -149,7 +150,7 @@ public:
         }
         checkArgs(first, last);
 
-        auto tasks = std::make_shared<std::vector<Task>>(first, last);
+        auto tasks = std::make_shared<std::vector<Task<void>>>(first, last);
         dispatch([tasks] {
             for (const auto &t: *tasks) {
                 t();
@@ -170,7 +171,7 @@ public:
         std::condition_variable cv;
 
         for (auto it = first; it != last; ++it) {
-            dispatch(std::bind([&](Task t) {
+            dispatch(std::bind([&](Task<void> t) {
                 t();
 
                 std::unique_lock<std::mutex> lk(m);
@@ -210,7 +211,7 @@ public:
         return results;
     }
 
-    void dispatchOnce(std::once_flag &flag, const Task &task)
+    void dispatchOnce(std::once_flag &flag, const Task<void> &task)
     {
         std::call_once(flag, task);
     }
