@@ -9,6 +9,9 @@ add_executable(test_all
     test_dispatch_once.cpp
     test_dispatch_serial.cpp
     test_dispatch_sync.cpp
+    test_on_success.cpp
+    test_on_failure.cpp
+    test_on_complete.cpp
 )
 
 find_package(Threads REQUIRED)

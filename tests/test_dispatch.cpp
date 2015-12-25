@@ -1,6 +1,5 @@
 #include <atomic>
 #include <functional>
-#include <numeric>
 #include <vector>
 
 #include "gungnir/gungnir.hpp"
