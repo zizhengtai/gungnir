@@ -142,6 +142,11 @@ public:
         return futures;
     }
 
+    void dispatchOnce(std::once_flag &flag, const Task<void> &task)
+    {
+        std::call_once(flag, task);
+    }
+
     template <typename Iter>
     void dispatchSerial(Iter first, Iter last)
     {
@@ -156,6 +161,35 @@ public:
                 t();
             }
         });
+    }
+
+    template <typename R, typename Iter>
+    std::vector<std::future<R>> dispatchSerial(Iter first, Iter last)
+    {
+        if (first >= last) {
+            return {};
+        }
+        checkArgs(first, last);
+
+        auto promises =
+            std::make_shared<std::vector<std::promise<R>>>(last - first);
+        std::vector<std::future<R>> futures;
+        futures.reserve(last - first);
+        for (auto &p: *promises) {
+            futures.emplace_back(p.get_future());
+        }
+
+        auto tasks = std::make_shared<std::vector<Task<R>>>(first, last);
+        dispatch([tasks, promises] {
+            for (std::size_t i = 0; i < tasks->size(); ++i) {
+                try {
+                    (*promises)[i].set_value((*tasks)[i]());
+                } catch (...) {
+                    (*promises)[i].set_exception(std::current_exception());
+                }
+            }
+        });
+        return futures;
     }
 
     template <typename Iter>
@@ -174,14 +208,14 @@ public:
             dispatch(std::bind([&](Task<void> t) {
                 t();
 
-                std::unique_lock<std::mutex> lk(m);
+                std::unique_lock<std::mutex> lk{m};
                 if (--count == 0) {
                     cv.notify_all();
                 }
             }, *it));
         }
 
-        std::unique_lock<std::mutex> lk(m);
+        std::unique_lock<std::mutex> lk{m};
         cv.wait(lk, [&count] { return count == 0; });
     }
 
@@ -209,11 +243,6 @@ public:
             results.emplace_back(f.get());
         }
         return results;
-    }
-
-    void dispatchOnce(std::once_flag &flag, const Task<void> &task)
-    {
-        std::call_once(flag, task);
     }
 
 private:

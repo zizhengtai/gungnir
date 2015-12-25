@@ -32,10 +32,14 @@ void              dispatch(const Task<void> &task);
 future<R>         dispatch(const Task<R> &task);
 void              dispatch(Iter first, Iter last);
 vector<future<R>> dispatch(Iter first, Iter last);
+
+void              dispatchOnce(once_flag &flag, const Task<void> &task);
+
+void              dispatchSerial(Iter first, Iter last);
+vector<future<R>> dispatchSerial(Iter first, Iter last);
+
 void              dispatchSync(Iter first, Iter last);
 vector<R>         dispatchSync(Iter first, Iter last);
-void              dispatchSerial(Iter first, Iter last);
-void              dispatchOnce(once_flag &flag, const Task<void> &task);
 ```
 
 ## Credits
