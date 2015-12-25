@@ -277,6 +277,48 @@ private:
     moodycamel::BlockingConcurrentQueue<Task<void>> tasks_;
 };
 
+template <typename R, typename S>
+void onSuccess(
+        const std::shared_future<R> &future,
+        const S &callback)
+{
+    std::thread([=] {
+        try {
+            callback(future.get());
+        } catch (...) {
+        }
+    }).detach();
+}
+
+template <typename R, typename F>
+void onFailure(
+        const std::shared_future<R> &future,
+        const F &callback)
+{
+    std::thread([=] {
+        try {
+            future.get();
+        } catch (...) {
+            callback(std::current_exception());
+        }
+    }).detach();
+}
+
+template <typename R, typename S, typename F>
+void onComplete(
+        const std::shared_future<R> &future,
+        const S &success,
+        const F &failure)
+{
+    std::thread([=] {
+        try {
+            success(future.get());
+        } catch (...) {
+            failure(std::current_exception());
+        }
+    }).detach();
+}
+
 }
 
 #endif // GUNGNIR_HPP

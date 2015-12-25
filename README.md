@@ -42,6 +42,16 @@ void              dispatchSync(Iter first, Iter last);
 vector<R>         dispatchSync(Iter first, Iter last);
 ```
 
+Some utility functions in the `gungnir` namespace make `std::future` and `std::shared_future` easier to work with:
+
+```cpp
+// using std::shared_future;
+
+void onSuccess(const shared_future<R> &future, const S &callback);
+void onFailure(const shared_future<R> &future, const F &callback);
+void onComplete(const shared_future<R> &future, const S &success, const F &failure);
+```
+
 ## Credits
 
 Thanks to [Cameron](http://moodycamel.com/) for the blazing fast [moodycamel::ConcurrentQueue](https://github.com/cameron314/concurrentqueue).
