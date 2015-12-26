@@ -58,7 +58,7 @@ public:
 
     ~TaskPool()
     {
-        destroyed_ = true; // prevent any future task dispatches
+        destroyed_ = true;  // prevent any future task dispatches
 
         for (std::size_t i = 0; i < numThreads_; ++i) {
             tasks_.enqueue(Task<void>{});
@@ -321,5 +321,5 @@ void onComplete(
 
 }
 
-#endif // GUNGNIR_HPP
+#endif  // GUNGNIR_HPP
 
