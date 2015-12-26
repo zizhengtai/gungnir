@@ -250,10 +250,10 @@ private:
     void checkArgs(const T &task) const
     {
         if (destroyed_) {
-            throw std::runtime_error("task pool already destroyed");
+            throw std::runtime_error{"task pool already destroyed"};
         }
         if (!task) {
-            throw std::invalid_argument("task has no target callable object");
+            throw std::invalid_argument{"task has no target callable object"};
         }
     }
 
@@ -263,10 +263,10 @@ private:
         using T = typename std::iterator_traits<Iter>::value_type;
 
         if (destroyed_) {
-            throw std::runtime_error("task pool already destroyed");
+            throw std::runtime_error{"task pool already destroyed"};
         }
         if (!std::all_of(first, last, [](const T &t) { return t; })) {
-            throw std::invalid_argument("task has no target callable object");
+            throw std::invalid_argument{"task has no target callable object"};
         }
     }
 
