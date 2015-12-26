@@ -1,5 +1,5 @@
-INSTALL_PATH ?= /usr/local
-INSTALL_INCLUDE_PATH = $(INSTALL_PATH)/include/gungnir
+PREFIX ?= /usr/local
+INSTALL_INCLUDE_PATH = $(PREFIX)/include/gungnir
 
 INSTALL = cp -R
 
