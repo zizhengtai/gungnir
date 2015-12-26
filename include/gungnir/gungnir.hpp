@@ -282,12 +282,12 @@ void onSuccess(
         const std::shared_future<R> &future,
         const S &callback)
 {
-    std::thread([=] {
+    std::thread{[=] {
         try {
             callback(future.get());
         } catch (...) {
         }
-    }).detach();
+    }}.detach();
 }
 
 template <typename R, typename F>
@@ -295,13 +295,13 @@ void onFailure(
         const std::shared_future<R> &future,
         const F &callback)
 {
-    std::thread([=] {
+    std::thread{[=] {
         try {
             future.get();
         } catch (...) {
             callback(std::current_exception());
         }
-    }).detach();
+    }}.detach();
 }
 
 template <typename R, typename S, typename F>
@@ -310,13 +310,13 @@ void onComplete(
         const S &success,
         const F &failure)
 {
-    std::thread([=] {
+    std::thread{[=] {
         try {
             success(future.get());
         } catch (...) {
             failure(std::current_exception());
         }
-    }).detach();
+    }}.detach();
 }
 
 }
