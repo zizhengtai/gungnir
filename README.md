@@ -16,7 +16,12 @@ Features:
 
 ## Installation
 
-Gungnir is a header-only library, so no linking is required. Run `make install` to install Gungnir to the system include path, or just drop it in your project.
+Gungnir is a header-only library, so no linking is required. In order to install Gungnir to the standard system include path (usually /usr/local/include), run:
+```bash
+$ make check  # optional but recommended
+$ make install
+```
+Alternatively, just drop it in your project.
 
 ## Usage
 
