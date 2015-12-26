@@ -21,6 +21,7 @@ Gungnir is a header-only library, so no linking is required. In order to install
 $ make check  # optional but recommended
 $ make install
 ```
+
 Alternatively, just drop it in your project.
 
 ## Usage
