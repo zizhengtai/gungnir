@@ -242,7 +242,9 @@ public:
 
     void dispatchOnce(std::once_flag &flag, const Task<void> &task)
     {
-        std::call_once(flag, task);
+        dispatch([task, &flag] {
+            std::call_once(flag, task);
+        });
     }
 
 private:
