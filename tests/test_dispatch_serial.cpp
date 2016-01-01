@@ -64,10 +64,9 @@ SCENARIO("dispatchSerial maintains order of tasks", "[serial]") {
                     REQUIRE(v.size() == 1000);
 
                     bool matched = true;
-                    for (int i = 0; i < 1000; ++i) {
+                    for (int i = 0; matched && i < 1000; ++i) {
                         if (v[i] != i) {
                             matched = false;
-                            break;
                         }
                     }
                     REQUIRE(matched);
@@ -149,10 +148,9 @@ SCENARIO("dispatchSerial maintains order of tasks", "[serial]") {
                     REQUIRE(v.size() == 1000);
 
                     bool matched = true;
-                    for (int i = 0; i < 1000; ++i) {
+                    for (int i = 0; matched && i < 1000; ++i) {
                         if (v[i] != i || f[i].get() != i) {
                             matched = false;
-                            break;
                         }
                     }
                     REQUIRE(matched);

@@ -1,5 +1,8 @@
 #include <atomic>
+#include <cstring>
+#include <exception>
 #include <functional>
+#include <future>
 #include <vector>
 
 #include "gungnir/gungnir.hpp"
@@ -20,11 +23,20 @@ SCENARIO("dispatch finishes before task pool is destroyed",
             tasks1.emplace_back([i, &x] { x += i; });
         }
         std::vector<gungnir::Task<int>> tasks2;
+        for (int i = 0; i < 10; ++i) {
+            tasks2.emplace_back([i, &x] {
+                throw std::runtime_error{{static_cast<char>(i + '0'), '\0'}};
+                x += i;
+                return i;
+            });
+        }
         for (int i = 3000; i < 4000; ++i) {
             tasks2.emplace_back([i, &x] { x += i; return i; });
         }
 
         WHEN("passed to dispatch") {
+
+            std::vector<std::future<int>> f1, f2;
 
             {
                 gungnir::TaskPool tp{8};
@@ -43,16 +55,43 @@ SCENARIO("dispatch finishes before task pool is destroyed",
                 }
                 
                 for (int i = 1000; i < 2000; ++i) {
-                    tp.dispatch<int>(std::bind(task2, i));
+                    f1.emplace_back(tp.dispatch<int>(std::bind(task2, i)));
                 }
                 tp.dispatch(tasks1.cbegin(), tasks1.cend());
-                tp.dispatch<int>(tasks2.cbegin(), tasks2.cend());
+                f2 = tp.dispatch<int>(tasks2.cbegin(), tasks2.cend());
             }
             int result = x;
 
             THEN("task finishes before task pool is destroyed") {
 
                 REQUIRE(result == (0 + 3999) * 4000 / 2);
+
+                bool matched = true;
+                for (int i = 0; matched && i < 1000; ++i) {
+                    if (f1[i].get() != i + 1000) {
+                        matched = false;
+                    }
+                }
+                REQUIRE(matched);
+
+                matched = true;
+                for (int i = 0; matched && i < 10; ++i) {
+                    try {
+                        f2[i].get();
+                        matched = false;
+                    } catch (const std::runtime_error &e) {
+                        const char s[] = {static_cast<char>(i + '0'), '\0'};
+                        matched = !std::strcmp(e.what(), s);
+                    } catch (...) {
+                        matched = false;
+                    }
+                }
+                for (int i = 0; matched && i < 1000; ++i) {
+                    if (f2[i + 10].get() != i + 3000) {
+                        matched = false;
+                    }
+                }
+                REQUIRE(matched);
             }
         }
     }
