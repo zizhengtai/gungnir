@@ -21,7 +21,7 @@ SCENARIO("dispatchOnce executes task exactly once, "
                 gungnir::TaskPool tp{8};
                 std::once_flag flag;
                 std::vector<std::thread> threads;
-                for (int i = 0; i < 16; ++i) {
+                for (int i = 0; i < 100; ++i) {
                     threads.emplace_back([&] { tp.dispatchOnce(flag, task); });
                 }
                 for (auto &t: threads) {
