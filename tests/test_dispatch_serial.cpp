@@ -1,5 +1,6 @@
+#include <cstring>
+#include <exception>
 #include <mutex>
-#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -20,20 +21,14 @@ SCENARIO("dispatchSerial maintains order of tasks", "[serial]") {
                 std::unique_lock<std::mutex> lk{m1};
                 v1.emplace_back(i);
             });
-        }
-        for (int i = 0; i < 1000; ++i) {
             tasks2.emplace_back([i, &v2, &m2] {
                 std::unique_lock<std::mutex> lk{m2};
                 v2.emplace_back(i);
             });
-        }
-        for (int i = 0; i < 1000; ++i) {
             tasks3.emplace_back([i, &v3, &m3] {
                 std::unique_lock<std::mutex> lk{m3};
                 v3.emplace_back(i);
             });
-        }
-        for (int i = 0; i < 1000; ++i) {
             tasks4.emplace_back([i, &v4, &m4] {
                 std::unique_lock<std::mutex> lk{m4};
                 v4.emplace_back(i);
@@ -81,28 +76,48 @@ SCENARIO("dispatchSerial maintains order of tasks", "[serial]") {
         std::mutex m1, m2, m3, m4;
 
         std::vector<gungnir::Task<int>> tasks1, tasks2, tasks3, tasks4;
+        for (int i = 0; i < 10; ++i) {
+            tasks1.emplace_back([i, &v1, &m1] {
+                throw std::runtime_error{{static_cast<char>(i + '0'), '\0'}};
+                std::unique_lock<std::mutex> lk{m1};
+                v1.emplace_back(i);
+                return i;
+            });
+            tasks2.emplace_back([i, &v2, &m2] {
+                throw std::runtime_error{{static_cast<char>(i + '0'), '\0'}};
+                std::unique_lock<std::mutex> lk{m2};
+                v2.emplace_back(i);
+                return i;
+            });
+            tasks3.emplace_back([i, &v3, &m3] {
+                throw std::runtime_error{{static_cast<char>(i + '0'), '\0'}};
+                std::unique_lock<std::mutex> lk{m3};
+                v3.emplace_back(i);
+                return i;
+            });
+            tasks4.emplace_back([i, &v4, &m4] {
+                throw std::runtime_error{{static_cast<char>(i + '0'), '\0'}};
+                std::unique_lock<std::mutex> lk{m4};
+                v4.emplace_back(i);
+                return i;
+            });
+        }
         for (int i = 0; i < 1000; ++i) {
             tasks1.emplace_back([i, &v1, &m1] {
                 std::unique_lock<std::mutex> lk{m1};
                 v1.emplace_back(i);
                 return i;
             });
-        }
-        for (int i = 0; i < 1000; ++i) {
             tasks2.emplace_back([i, &v2, &m2] {
                 std::unique_lock<std::mutex> lk{m2};
                 v2.emplace_back(i);
                 return i;
             });
-        }
-        for (int i = 0; i < 1000; ++i) {
             tasks3.emplace_back([i, &v3, &m3] {
                 std::unique_lock<std::mutex> lk{m3};
                 v3.emplace_back(i);
                 return i;
             });
-        }
-        for (int i = 0; i < 1000; ++i) {
             tasks4.emplace_back([i, &v4, &m4] {
                 std::unique_lock<std::mutex> lk{m4};
                 v4.emplace_back(i);
@@ -144,12 +159,23 @@ SCENARIO("dispatchSerial maintains order of tasks", "[serial]") {
                     auto &f = fv.first;
                     auto &v = fv.second;
 
-                    REQUIRE(f.size() == 1000);
+                    REQUIRE(f.size() == 1010);
                     REQUIRE(v.size() == 1000);
 
                     bool matched = true;
+                    for (int i = 0; matched && i < 10; ++i) {
+                        try {
+                            f[i].get();
+                            matched = false;
+                        } catch (const std::runtime_error &e) {
+                            const char s[] = {static_cast<char>(i + '0'), '\0'};
+                            matched = !std::strcmp(e.what(), s);
+                        } catch (...) {
+                            matched = false;
+                        }
+                    }
                     for (int i = 0; matched && i < 1000; ++i) {
-                        if (v[i] != i || f[i].get() != i) {
+                        if (v[i] != i || f[i + 10].get() != i) {
                             matched = false;
                         }
                     }
