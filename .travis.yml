@@ -16,7 +16,8 @@ script:
     - if [ "$TRAVIS_OS_NAME" = "linux" ]; then valgrind --tool=memcheck --leak-check=full --error-exitcode=1 ./test_all; fi
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./test_all; fi
 branches:
-    only: master
+    - master
+    - develop
 os:
     - linux
     - osx
