@@ -12,3 +12,4 @@ uninstall:
 
 check:
 	cd tests && cmake . && make && ./test_all
+
