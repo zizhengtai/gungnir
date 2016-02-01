@@ -12,7 +12,7 @@ Features:
 * Reduces boilerplate code needed to manage threads, task queues, etc.
 * Light-weight header-only library.
 
-([Gungnir](http://www.wikiwand.com/en/Gungnir) is Odin's magic spear that always hits its mark. This library is named after the spear, in the hope of having the same power and reliability.)
+([Gungnir](https://en.wikipedia.org/wiki/Gungnir) is Odin's magic spear that always hits its mark. This library is named after the spear, in the hope of having the same power and reliability.)
 
 ## Installation
 
