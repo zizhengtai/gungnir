@@ -41,4 +41,3 @@ SCENARIO("onSuccess invokes the callback if a value is"
         }
     }
 }
-

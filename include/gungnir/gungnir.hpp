@@ -324,4 +324,3 @@ void onComplete(
 }
 
 #endif  // GUNGNIR_HPP
-

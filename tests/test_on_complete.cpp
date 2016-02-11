@@ -79,4 +79,3 @@ SCENARIO("onComplete invokes the first callback if a value is"
         }
     }
 }
-

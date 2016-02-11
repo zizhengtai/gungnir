@@ -185,4 +185,3 @@ SCENARIO("dispatchSerial maintains order of tasks", "[serial]") {
         }
     }
 }
-

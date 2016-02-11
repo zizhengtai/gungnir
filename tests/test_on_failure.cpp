@@ -48,4 +48,3 @@ SCENARIO("onFailure invokes the callback if an exception is"
         }
     }
 }
-

@@ -78,4 +78,3 @@ SCENARIO("dispatchSync waits for all tasks to finish", "[sync]") {
         }
     }
 }
-
