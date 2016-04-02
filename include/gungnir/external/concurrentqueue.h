@@ -59,6 +59,7 @@
 #include <atomic>		// Requires C++11. Sorry VS2010.
 #include <cassert>
 #endif
+#include <cstddef>              // for max_align_t
 #include <cstdint>
 #include <cstdlib>
 #include <type_traits>
@@ -235,6 +236,12 @@ namespace details {
 			? (static_cast<T>(1) << (sizeof(T) * CHAR_BIT - 1)) - static_cast<T>(1)
 			: static_cast<T>(-1);
 	};
+    
+#ifdef __GNUC__
+	typedef ::max_align_t max_align_t;      // GCC forgot to add it to std:: for a while
+#else
+	typedef std::max_align_t max_align_t;   // Others (e.g. MSVC) insist it can *only* be accessed via std::
+#endif
 }
 
 // Default traits for the ConcurrentQueue. To change some of the
@@ -1562,12 +1569,25 @@ private:
 		inline T* operator[](index_t idx) MOODYCAMEL_NOEXCEPT { return reinterpret_cast<T*>(elements) + static_cast<size_t>(idx & static_cast<index_t>(BLOCK_SIZE - 1)); }
 		inline T const* operator[](index_t idx) const MOODYCAMEL_NOEXCEPT { return reinterpret_cast<T const*>(elements) + static_cast<size_t>(idx & static_cast<index_t>(BLOCK_SIZE - 1)); }
 		
+	private:
+		// IMPORTANT: This must be the first member in Block, so that if T depends on the alignment of
+		// addresses returned by malloc, that alignment will be preserved. Apparently clang actually
+		// generates code that uses this assumption for AVX instructions in some cases. Ideally, we
+		// should also align Block to the alignment of T in case it's higher than malloc's 16-byte
+		// alignment, but this is hard to do in a cross-platform way. Assert for this case:
+		static_assert(std::alignment_of<T>::value <= std::alignment_of<details::max_align_t>::value, "The queue does not support super-aligned types at this time");
+		// Additionally, we need the alignment of Block itself to be a multiple of max_align_t since
+		// otherwise the appropriate padding will not be added at the end of Block in order to make
+		// arrays of Blocks all be properly aligned (not just the first one). We use a union to force
+		// this.
+		union {
+			char elements[sizeof(T) * BLOCK_SIZE];
+			details::max_align_t dummy;
+		};
 	public:
 		Block* next;
 		std::atomic<size_t> elementsCompletelyDequeued;
 		std::atomic<bool> emptyFlags[BLOCK_SIZE <= EXPLICIT_BLOCK_EMPTY_COUNTER_THRESHOLD ? BLOCK_SIZE : 1];
-	private:
-		char elements[sizeof(T) * BLOCK_SIZE];
 	public:
 		std::atomic<std::uint32_t> freeListRefs;
 		std::atomic<Block*> freeListNext;
@@ -1578,6 +1598,7 @@ private:
 		void* owner;
 #endif
 	};
+    static_assert(std::alignment_of<Block>::value >= std::alignment_of<details::max_align_t>::value, "Internal error: Blocks must be at least as aligned as the type they are wrapping");
 
 
 #if MCDBGQ_TRACKMEM
