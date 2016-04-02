@@ -37,7 +37,7 @@ matrix:
           env: COMPILER='clang++'
 
 before_script:
-    - export CXX='$COMPILER'
+    - export CXX="$COMPILER"
 
 script:
     - cd tests && cmake . && make
