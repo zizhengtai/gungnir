@@ -8,11 +8,11 @@ addons:
             - ubuntu-toolchain-r-test
         packages:
             - g++-4.8
-            - clang-3.5
+            - clang-3.6
             - valgrind
 before_script:
     - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8"; fi
-    - if [ "$CXX" = "clang++" ]; then export CXX="clang++-3.5"; fi
+    - if [ "$CXX" = "clang++" ]; then export CXX="clang++-3.6"; fi
 script:
     - cd tests && cmake . && make
     - if [ "$TRAVIS_OS_NAME" = "linux" ]; then valgrind --tool=memcheck --leak-check=full --error-exitcode=1 ./test_all; fi
