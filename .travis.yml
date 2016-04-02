@@ -11,6 +11,7 @@ addons:
             - clang-3.6
             - valgrind
 before_script:
+    - echo $(clang++ --version)
     - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8"; fi
     - if [ "$CXX" = "clang++" ]; then export CXX="clang++-3.6"; fi
 script:
